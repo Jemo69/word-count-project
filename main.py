@@ -4,40 +4,36 @@ import sys
 import os
 
 
-def main():
+def main() -> None:
     """
-    this is the main function
+    Main function to count words in a file or directory.
     """
-    if len(sys.argv) > 1:
-        path = sys.argv[1]
+    if len(sys.argv) >= 4:
+        path_input = sys.argv[1]
         search_word = sys.argv[2]
-        case_sensitive_prompt = sys.argv[3]
+        case_sensitive = sys.argv[3].lower() == "yes"
     else:
-        print(f"{os.getcwd()}")
-        print(f"Files:{os.listdir(os.getcwd())}")
-        path = Path(input("Enter a file path or directory path to open: "))
+        print(f"Current Directory: {os.getcwd()}")
+        print(f"Files: {os.listdir(os.getcwd())}")
+        path_input = input("Enter a file path or directory path to open: ")
         search_word = input("Enter the word you want to count: ")
         case_sensitive_prompt = input(
             "Should the search be case-sensitive? Enter 'yes' or 'no': "
         )
+        case_sensitive = case_sensitive_prompt.lower() == "yes"
 
-        if case_sensitive_prompt.lower() == "yes":
-            case_sensitive = True
-        elif case_sensitive_prompt.lower() == "no":
-            case_sensitive = False
-    # this if one file or list of files in a directory
+    path = Path(path_input)
 
-    if isinstance(path, str):
-        path = Path(path)
     if path.is_file():
-        print(word_count_utils(path, search_word, case_sensitive))
-    # this if a directory
+        result = word_count_utils(path, search_word, case_sensitive)
+        print(f"{path.name}: {result}")
+
     elif path.is_dir():
-        directory_contents = os.listdir(path)
-        for item in directory_contents:
-            full_item_path = Path(f"{path} + {os.sep} + {item}")
-            if os.path.isfile(full_item_path):
-                print(word_count_utils(full_item_path, search_word, case_sensitive))
+        # Use .iterdir() for a more idiomatic pathlib approach
+        for item in path.iterdir():
+            if item.is_file():
+                result = word_count_utils(item, search_word, case_sensitive)
+                print(f"{item.name}: {result}")
     else:
         print("Sorry, that path doesn't seem to exist. Please try again.\n")
 
